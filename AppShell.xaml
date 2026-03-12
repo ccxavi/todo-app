@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ToDoApplication.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ToDoApplication"
+    Title="ToDoApplication"
+    FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Sign In"
+        ContentTemplate="{DataTemplate local:SignInPage}"
+        Route="SignInPage" />
+
+    <TabBar Route="AppTabs">
+        <ShellContent
+            Title="ToDo"
+            ContentTemplate="{DataTemplate local:ToDoPage}"
+            Route="ToDoPage" />
+
+        <ShellContent
+            Title="Completed"
+            ContentTemplate="{DataTemplate local:CompletedPage}"
+            Route="CompletedPage" />
+
+        <ShellContent
+            Title="Profile"
+            ContentTemplate="{DataTemplate local:ProfilePage}"
+            Route="ProfilePage" />
+    </TabBar>
+
+</Shell>

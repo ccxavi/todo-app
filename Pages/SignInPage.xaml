@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ToDoApplication.SignInPage"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,20"
+            Spacing="25">
+
+            <Image
+                Source="dotnet_bot.png"
+                HeightRequest="185"
+                Aspect="AspectFit" />
+
+            <VerticalStackLayout Spacing="10">
+                <Entry
+                    x:Name="EmailEntry"
+                    Placeholder="Enter your email"
+                    Keyboard="Email" />
+
+                <Entry
+                    x:Name="PasswordEntry"
+                    Placeholder="Enter your password"
+                    IsPassword="True" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="10">
+                <Button Text="Sign In" Clicked="OnSignInClicked" />
+
+                <Button Text="Sign Up" Clicked="OnSignUpClicked" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
