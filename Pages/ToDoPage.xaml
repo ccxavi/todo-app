@@ -2,11 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ToDoApplication.ToDoPage"
-             Shell.NavBarIsVisible="False"
-             Shell.TabBarIsVisible="False">
+             Shell.NavBarIsVisible="False">
 
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="0,16,0,0">
+    <Grid RowDefinitions="Auto,*" Padding="0,16,0,0">
         
         <VerticalStackLayout Grid.Row="0"
                              Spacing="12">
@@ -99,31 +98,6 @@
                 </ImageButton.Shadow>
             </ImageButton>
         </Grid>
-
-        <VerticalStackLayout
-            Grid.Row="2"
-            Padding="14,10,14,18"
-            Spacing="12">
-            <BoxView HeightRequest="1" Opacity="0.2" />
-
-            <Grid ColumnDefinitions="*,*,*">
-                <Button
-                    Grid.Column="0"
-                    Clicked="OnToDoClicked"
-                    IsEnabled="False"
-                    Text="ToDo" />
-
-                <Button
-                    Grid.Column="1"
-                    Clicked="OnCompletedClicked"
-                    Text="Completed" />
-
-                <Button
-                    Grid.Column="2"
-                    Clicked="OnProfileClicked"
-                    Text="Profile" />
-            </Grid>
-        </VerticalStackLayout>
     </Grid>
 
 </ContentPage>

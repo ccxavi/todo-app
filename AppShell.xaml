@@ -12,19 +12,26 @@
         ContentTemplate="{DataTemplate local:SignInPage}"
         Route="SignInPage" />
 
-    <TabBar Route="AppTabs">
+    <TabBar
+        Route="AppTabs"
+        Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+        Shell.TabBarForegroundColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray100}}"
+        Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}">
         <ShellContent
             Title="ToDo"
+            Icon="planner.svg"
             ContentTemplate="{DataTemplate local:ToDoPage}"
             Route="ToDoPage" />
 
         <ShellContent
             Title="Completed"
+            Icon="check.svg"
             ContentTemplate="{DataTemplate local:CompletedPage}"
             Route="CompletedPage" />
 
         <ShellContent
             Title="Profile"
+            Icon="profile.svg"
             ContentTemplate="{DataTemplate local:ProfilePage}"
             Route="ProfilePage" />
     </TabBar>
