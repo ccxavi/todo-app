@@ -23,7 +23,71 @@
                 Opacity="0.2" />
         </VerticalStackLayout>
 
-        <ContentView Grid.Row="1" />
+        <Grid Grid.Row="1" Padding="24,16,24,16">
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="{AppThemeBinding Light=#10000000, Dark=#20000000}"
+                            Offset="0,2"
+                            Radius="8"
+                            Opacity="1"/>
+                </Border.Shadow>
+
+                <Grid RowDefinitions="Auto,Auto,*">
+                    <!-- Card Header -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="20,16,20,16">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                            <Label Text="COMPLETED TASKS"
+                                   FontFamily="InterSemiBold"
+                                   FontSize="12"
+                                   CharacterSpacing="1"
+                                   TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <BoxView Grid.Row="1" 
+                              HeightRequest="1"
+                              BackgroundColor="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"/>
+
+                    <!-- List Content -->
+                    <CollectionView Grid.Row="2"
+                                    x:Name="CompletedCollectionView"
+                                    ItemsSource="{Binding .}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnSelectionChanged"
+                                    BackgroundColor="Transparent"
+                                    Margin="0,8,0,8">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="20,12" BackgroundColor="Transparent">
+                                    <CheckBox Grid.Column="0" 
+                                              IsChecked="{Binding IsCompleted}" 
+                                              VerticalOptions="Center"
+                                              Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                    
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding item_name}" 
+                                               FontFamily="InterSemiBold"
+                                               FontSize="16"
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSurface}, Dark={StaticResource OnSurfaceDark}}"
+                                               TextDecorations="Strikethrough" />
+                                        <Label Text="{Binding item_description}" 
+                                               FontFamily="InterRegular"
+                                               FontSize="14"
+                                               TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Border>
+        </Grid>
 
         <VerticalStackLayout
             Grid.Row="2"
@@ -41,8 +105,7 @@
                     Grid.Column="1"
                     Clicked="OnCompletedClicked"
                     IsEnabled="False"
-                    Text="Completed"
-                    />
+                    Text="Completed" />
 
                 <Button
                     Grid.Column="2"
