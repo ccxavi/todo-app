@@ -21,7 +21,7 @@ public static class MauiProgram
 
         builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
         {
-            client.BaseAddress = new Uri("https://todo-list.dcism.com/");
+            client.BaseAddress = new Uri("https://todo-list.dcism.org");
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 

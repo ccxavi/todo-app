@@ -15,19 +15,38 @@
                 Aspect="AspectFit" />
 
             <VerticalStackLayout Spacing="10">
-                <Entry Placeholder="Enter your full name" />
+                <Entry
+                    x:Name="FirstNameEntry"
+                    Placeholder="Enter your first name" />
 
-                <Entry Placeholder="Enter your email" Keyboard="Email" />
+                <Entry
+                    x:Name="LastNameEntry"
+                    Placeholder="Enter your last name" />
 
-                <Entry Placeholder="Create a password" IsPassword="True" />
+                <Entry
+                    x:Name="EmailEntry"
+                    Placeholder="Enter your email"
+                    Keyboard="Email" />
 
-                <Entry Placeholder="Confirm password" IsPassword="True" />
+                <Entry
+                    x:Name="PasswordEntry"
+                    Placeholder="Create a password"
+                    IsPassword="True" />
+
+                <Entry
+                    x:Name="ConfirmPasswordEntry"
+                    Placeholder="Confirm password"
+                    IsPassword="True" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="10">
-                <Button Text="Sign Up" />
+                <Button
+                    Text="Sign Up"
+                    Clicked="OnSignUpClicked" />
 
-                <Button Text="Sign In" Clicked="OnSignInClicked" />
+                <Button
+                    Text="Sign In"
+                    Clicked="OnSignInClicked" />
             </VerticalStackLayout>
 
         </VerticalStackLayout>
