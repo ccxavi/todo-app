@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ToDoApplication.Services;
 
 namespace ToDoApplication;
 
@@ -16,6 +18,12 @@ public static class MauiProgram
                 fonts.AddFont("Inter-Regular.ttf", "InterRegular");
                 fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
             });
+
+        builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+        {
+            client.BaseAddress = new Uri("https://todo-list.dcism.com/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
 #if DEBUG
 		builder.Logging.AddDebug();
