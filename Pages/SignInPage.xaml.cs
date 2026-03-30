@@ -13,6 +13,16 @@ public partial class SignInPage : ContentPage
         _authService = authService;
     }
 
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+        EmailEntry.IsEnabled = !isLoading;
+        PasswordEntry.IsEnabled = !isLoading;
+        SignInButton.IsEnabled = !isLoading;
+        SignUpButton.IsEnabled = !isLoading;
+    }
+
     private async void OnSignInClicked(object? sender, EventArgs e)
     {
         if (string.IsNullOrWhiteSpace(EmailEntry.Text) || string.IsNullOrWhiteSpace(PasswordEntry.Text))
@@ -20,6 +30,8 @@ public partial class SignInPage : ContentPage
             await DisplayAlert("Sign In", "Enter your email and password first.", "OK");
             return;
         }
+
+        SetLoadingState(true);
 
         try
         {
@@ -43,6 +55,10 @@ public partial class SignInPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Sign In Failed", ex.Message, "OK");
+        }
+        finally
+        {
+            SetLoadingState(false);
         }
     }
 

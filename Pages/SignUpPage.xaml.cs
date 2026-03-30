@@ -13,6 +13,19 @@ public partial class SignUpPage : ContentPage
         _authService = authService;
     }
 
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+        FirstNameEntry.IsEnabled = !isLoading;
+        LastNameEntry.IsEnabled = !isLoading;
+        EmailEntry.IsEnabled = !isLoading;
+        PasswordEntry.IsEnabled = !isLoading;
+        ConfirmPasswordEntry.IsEnabled = !isLoading;
+        SignUpButton.IsEnabled = !isLoading;
+        SignInButton.IsEnabled = !isLoading;
+    }
+
     private async void OnSignUpClicked(object? sender, EventArgs e)
     {
         if (string.IsNullOrWhiteSpace(FirstNameEntry.Text) ||
@@ -30,6 +43,8 @@ public partial class SignUpPage : ContentPage
             await DisplayAlert("Sign Up", "Passwords do not match.", "OK");
             return;
         }
+
+        SetLoadingState(true);
 
         try
         {
@@ -56,6 +71,10 @@ public partial class SignUpPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Sign Up Failed", ex.Message, "OK");
+        }
+        finally
+        {
+            SetLoadingState(false);
         }
     }
 

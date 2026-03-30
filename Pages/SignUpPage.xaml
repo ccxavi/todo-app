@@ -39,12 +39,20 @@
                     IsPassword="True" />
             </VerticalStackLayout>
 
+            <ActivityIndicator
+                x:Name="LoadingIndicator"
+                IsVisible="False"
+                IsRunning="False"
+                HorizontalOptions="Center" />
+
             <VerticalStackLayout Spacing="10">
                 <Button
+                    x:Name="SignUpButton"
                     Text="Sign Up"
                     Clicked="OnSignUpClicked" />
 
                 <Button
+                    x:Name="SignInButton"
                     Text="Sign In"
                     Clicked="OnSignInClicked" />
             </VerticalStackLayout>
