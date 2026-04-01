@@ -24,13 +24,13 @@ public static class MauiProgram
         builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
         {
             client.BaseAddress = new Uri("https://todo-list.dcism.org");
-            client.Timeout = TimeSpan.FromSeconds(30);
+            client.Timeout = TimeSpan.FromSeconds(60);
         });
 
         builder.Services.AddHttpClient<IToDoService, ToDoService>(client =>
         {
             client.BaseAddress = new Uri("https://todo-list.dcism.org");
-            client.Timeout = TimeSpan.FromSeconds(30);
+            client.Timeout = TimeSpan.FromSeconds(60);
         });
 
         // Register Pages

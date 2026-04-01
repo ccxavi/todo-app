@@ -2,8 +2,8 @@ namespace ToDoApplication;
 
 public partial class AddToDoPage : ContentPage
 {
-    public Action<string, string>? OnSaveAction { get; set; }
-    public Action? OnDeleteAction { get; set; }
+    public Func<string, string, Task>? OnSaveAction { get; set; }
+    public Func<Task>? OnDeleteAction { get; set; }
 
     // Constructor for Add mode
     public AddToDoPage()
@@ -34,21 +34,23 @@ public partial class AddToDoPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(title))
         {
-            await DisplayAlertAsync("Error", "Please enter a title.", "OK");
+            await DisplayAlert("Error", "Please enter a title.", "OK");
             return;
         }
 
-        OnSaveAction?.Invoke(title, details);
+        if (OnSaveAction != null)
+        {
+            await OnSaveAction.Invoke(title, details);
+        }
+
         await Shell.Current.Navigation.PopModalAsync();
     }
 
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
-        bool confirm = await DisplayAlertAsync("Delete", "Are you sure you want to delete this to-do?", "Yes", "No");
-        if (confirm)
+        if (OnDeleteAction != null)
         {
-            OnDeleteAction?.Invoke();
-            await Shell.Current.Navigation.PopModalAsync();
+            await OnDeleteAction.Invoke();
         }
     }
 }

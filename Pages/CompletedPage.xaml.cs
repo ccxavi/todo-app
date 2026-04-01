@@ -56,15 +56,38 @@ public partial class CompletedPage : ContentPage
                 item.PropertyChanged += Item_PropertyChanged;
                 CompletedItems.Add(item);
             }
-
-            if (CompletedItems.Count == 0)
-            {
-                // Optional: Show empty state message
-            }
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Failed to load completed tasks: {ex.Message}", "OK");
+        }
+    }
+
+    private async void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ToDoClass.IsCompleted))
+        {
+            if (sender is ToDoClass item)
+            {
+                try
+                {
+                    string apiStatus = item.IsCompleted ? "inactive" : "active";
+                    await _toDoService.UpdateStatusAsync(item.item_id, apiStatus);
+                    
+                    // On success, remove from this view
+                    item.PropertyChanged -= Item_PropertyChanged;
+                    CompletedItems.Remove(item);
+                }
+                catch (Exception ex)
+                {
+                    // Revert the local change and error message
+                    item.PropertyChanged -= Item_PropertyChanged;
+                    item.IsCompleted = !item.IsCompleted;
+                    item.PropertyChanged += Item_PropertyChanged;
+
+                    await DisplayAlert("Error", $"Failed to update status: {ex.Message}", "OK");
+                }
+            }
         }
     }
 
@@ -113,5 +136,4 @@ public partial class CompletedPage : ContentPage
             await Shell.Current.Navigation.PushModalAsync(editPage);
         }
     }
-
 }
