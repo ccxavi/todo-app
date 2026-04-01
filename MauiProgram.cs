@@ -19,11 +19,21 @@ public static class MauiProgram
                 fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
             });
 
+        builder.Services.AddSingleton<ISessionService, SessionService>();
+
         builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
         {
             client.BaseAddress = new Uri("https://todo-list.dcism.org");
             client.Timeout = TimeSpan.FromSeconds(30);
         });
+
+        builder.Services.AddHttpClient<IToDoService, ToDoService>(client =>
+        {
+            client.BaseAddress = new Uri("https://todo-list.dcism.org");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        // Register Pages
 
 #if DEBUG
 		builder.Logging.AddDebug();

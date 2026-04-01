@@ -10,6 +10,7 @@ public class ToDoClass : INotifyPropertyChanged
     private string? _item_description;
     private string _status = "Pending";
     private int _user_id;
+    private string _timemodified = string.Empty;
 
     public int item_id
     {
@@ -80,10 +81,28 @@ public class ToDoClass : INotifyPropertyChanged
         }
     }
 
+    public string timemodified
+    {
+        get => _timemodified;
+        set
+        {
+            if (_timemodified == value) return;
+            _timemodified = value;
+            OnPropertyChanged();
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+}
+
+public class AddItemResponseClass
+{
+    public int status { get; set; }
+    public ToDoClass? data { get; set; }
+    public string message { get; set; } = "";
 }

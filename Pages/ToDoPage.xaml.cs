@@ -8,9 +8,14 @@ public partial class ToDoPage : ContentPage
 {
     public ObservableCollection<ToDoClass> ToDoItems { get; set; } = new();
 
-    public ToDoPage()
+    private readonly IToDoService _toDoService;
+    private readonly ISessionService _sessionService;
+
+    public ToDoPage(IToDoService toDoService, ISessionService sessionService)
     {
         InitializeComponent();
+        _toDoService = toDoService;
+        _sessionService = sessionService;
         BindingContext = ToDoItems;
     }
 
@@ -71,14 +76,23 @@ public partial class ToDoPage : ContentPage
     private async void OnAddClicked(object? sender, EventArgs e)
     {
         var addPage = new AddToDoPage();
-        addPage.OnSaveAction = (title, description) =>
+        addPage.OnSaveAction = async (title, description) =>
         {
-            TaskDataStore.AddTask(new ToDoClass
+            if (_sessionService.CurrentUser == null)
             {
-                item_name = title,
-                item_description = description ?? string.Empty,
-                status = "Pending"
-            });
+                await DisplayAlert("Error", "User not logged in.", "OK");
+                return;
+            }
+
+            try
+            {
+                var newItem = await _toDoService.AddItemAsync(title, description, _sessionService.CurrentUser.id);
+                TaskDataStore.AddTask(newItem);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to add task: {ex.Message}", "OK");
+            }
         };
 
         await Shell.Current.Navigation.PushModalAsync(addPage);
