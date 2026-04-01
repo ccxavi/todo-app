@@ -7,6 +7,7 @@ public interface IToDoService
 {
     Task<ToDoClass> AddItemAsync(string name, string description, int userId);
     Task<IEnumerable<ToDoClass>> GetItemsAsync(string status, int userId);
+    Task UpdateItemAsync(int itemId, string name, string description);
 }
 
 public class ToDoService : IToDoService
@@ -68,5 +69,31 @@ public class ToDoService : IToDoService
             return Enumerable.Empty<ToDoClass>();
 
         return result.data.Values;
+    }
+
+    public async Task UpdateItemAsync(int itemId, string name, string description)
+    {
+        var requestBody = new
+        {
+            item_name = name,
+            item_description = description,
+            item_id = itemId
+        };
+
+        var response = await _httpClient.PutAsJsonAsync("/editItem_action.php", requestBody);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            throw new Exception(string.IsNullOrWhiteSpace(errorMessage) ? "Failed to update item." : errorMessage);
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<UpdateItemResponseClass>();
+
+        if (result == null)
+            throw new Exception("Invalid server response.");
+
+        if (result.status != 200)
+            throw new Exception(result.message ?? "Failed to update item.");
     }
 }

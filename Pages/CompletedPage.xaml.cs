@@ -88,10 +88,18 @@ public partial class CompletedPage : ContentPage
             }
 
             var editPage = new AddToDoPage(item.item_name, item.item_description);
-            editPage.OnSaveAction = (newTitle, newDescription) =>
+            editPage.OnSaveAction = async (newTitle, newDescription) =>
             {
-                item.item_name = newTitle;
-                item.item_description = newDescription ?? string.Empty;
+                try
+                {
+                    await _toDoService.UpdateItemAsync(item.item_id, newTitle, newDescription ?? string.Empty);
+                    item.item_name = newTitle;
+                    item.item_description = newDescription ?? string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to update task: {ex.Message}", "OK");
+                }
             };
             editPage.OnDeleteAction = () =>
             {

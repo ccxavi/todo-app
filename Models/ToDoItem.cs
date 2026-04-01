@@ -114,3 +114,9 @@ public class GetItemsResponseClass
     public Dictionary<string, ToDoClass>? data { get; set; }
     public string? count { get; set; }
 }
+
+public class UpdateItemResponseClass
+{
+    public int status { get; set; }
+    public string message { get; set; } = "";
+}
