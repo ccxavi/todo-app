@@ -68,15 +68,6 @@ public partial class CompletedPage : ContentPage
         }
     }
 
-    private void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ToDoClass.status) || e.PropertyName == nameof(ToDoClass.IsCompleted))
-        {
-            // If an item is now pending (unchecked), it should move to the pending list
-            _ = LoadCompletedTasksAsync();
-        }
-    }
-
     private async void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is ToDoClass item)

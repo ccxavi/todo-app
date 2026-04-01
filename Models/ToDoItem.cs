@@ -120,3 +120,9 @@ public class UpdateItemResponseClass
     public int status { get; set; }
     public string message { get; set; } = "";
 }
+
+public class StatusItemResponseClass
+{
+    public int status { get; set; }
+    public string message { get; set; } = "";
+}

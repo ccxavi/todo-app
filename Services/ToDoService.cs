@@ -8,6 +8,7 @@ public interface IToDoService
     Task<ToDoClass> AddItemAsync(string name, string description, int userId);
     Task<IEnumerable<ToDoClass>> GetItemsAsync(string status, int userId);
     Task UpdateItemAsync(int itemId, string name, string description);
+    Task UpdateStatusAsync(int itemId, string status);
 }
 
 public class ToDoService : IToDoService
@@ -95,5 +96,30 @@ public class ToDoService : IToDoService
 
         if (result.status != 200)
             throw new Exception(result.message ?? "Failed to update item.");
+    }
+
+    public async Task UpdateStatusAsync(int itemId, string status)
+    {
+        var requestBody = new
+        {
+            status = status,
+            item_id = itemId
+        };
+
+        var response = await _httpClient.PutAsJsonAsync("/statusItem_action.php", requestBody);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            throw new Exception(string.IsNullOrWhiteSpace(errorMessage) ? "Failed to update status." : errorMessage);
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<StatusItemResponseClass>();
+
+        if (result == null)
+            throw new Exception("Invalid server response.");
+
+        if (result.status != 200)
+            throw new Exception(result.message ?? "Failed to update status.");
     }
 }

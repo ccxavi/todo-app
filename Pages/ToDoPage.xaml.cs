@@ -68,15 +68,6 @@ public partial class ToDoPage : ContentPage
         }
     }
 
-    private void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ToDoClass.status) || e.PropertyName == nameof(ToDoClass.IsCompleted))
-        {
-            // If an item is now completed, it should move to the completed list
-            _ = LoadTasksAsync();
-        }
-    }
-
     private async void OnAddClicked(object? sender, EventArgs e)
     {
         var addPage = new AddToDoPage();
