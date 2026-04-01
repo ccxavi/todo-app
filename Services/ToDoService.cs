@@ -9,6 +9,7 @@ public interface IToDoService
     Task<IEnumerable<ToDoClass>> GetItemsAsync(string status, int userId);
     Task UpdateItemAsync(int itemId, string name, string description);
     Task UpdateStatusAsync(int itemId, string status);
+    Task DeleteItemAsync(int itemId);
 }
 
 public class ToDoService : IToDoService
@@ -121,5 +122,24 @@ public class ToDoService : IToDoService
 
         if (result.status != 200)
             throw new Exception(result.message ?? "Failed to update status.");
+    }
+
+    public async Task DeleteItemAsync(int itemId)
+    {
+        var response = await _httpClient.DeleteAsync($"/deleteItem_action.php?item_id={itemId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            throw new Exception(string.IsNullOrWhiteSpace(errorMessage) ? "Failed to delete item." : errorMessage);
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<DeleteItemResponseClass>();
+
+        if (result == null)
+            throw new Exception("Invalid server response.");
+
+        if (result.status != 200)
+            throw new Exception(result.message ?? "Failed to delete item.");
     }
 }

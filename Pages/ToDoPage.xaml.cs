@@ -118,9 +118,22 @@ public partial class ToDoPage : ContentPage
                     await DisplayAlert("Error", $"Failed to update task: {ex.Message}", "OK");
                 }
             };
-            editPage.OnDeleteAction = () =>
+            editPage.OnDeleteAction = async () =>
             {
-                ToDoItems.Remove(item);
+                bool confirm = await DisplayAlert("Delete Task", "Are you sure you want to delete this task?", "Yes", "No");
+                if (confirm)
+                {
+                    try
+                    {
+                        await _toDoService.DeleteItemAsync(item.item_id);
+                        ToDoItems.Remove(item);
+                        await Shell.Current.Navigation.PopModalAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"Failed to delete task: {ex.Message}", "OK");
+                    }
+                }
             };
 
             await Shell.Current.Navigation.PushModalAsync(editPage);
