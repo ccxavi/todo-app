@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace ToDoApplication.Models;
 
@@ -105,4 +106,11 @@ public class AddItemResponseClass
     public int status { get; set; }
     public ToDoClass? data { get; set; }
     public string message { get; set; } = "";
+}
+
+public class GetItemsResponseClass
+{
+    public int status { get; set; }
+    public Dictionary<string, ToDoClass>? data { get; set; }
+    public string? count { get; set; }
 }

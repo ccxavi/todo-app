@@ -19,19 +19,15 @@ public partial class ToDoPage : ContentPage
         BindingContext = ToDoItems;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        RefreshList();
-        
-        // Subscribe to changes in the master list
-        TaskDataStore.AllItems.CollectionChanged += AllItems_CollectionChanged;
+        await LoadTasksAsync();
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        TaskDataStore.AllItems.CollectionChanged -= AllItems_CollectionChanged;
         
         // Unsubscribe from existing items to prevent leaks
         foreach (var item in ToDoItems)
@@ -40,27 +36,35 @@ public partial class ToDoPage : ContentPage
         }
     }
 
-    private void AllItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private async Task LoadTasksAsync()
     {
-        RefreshList();
-    }
+        if (_sessionService.CurrentUser == null) return;
 
-    private void RefreshList()
-    {
-        // Unsubscribe from existing items
-        foreach (var item in ToDoItems)
+        try
         {
-            item.PropertyChanged -= Item_PropertyChanged;
-        }
+            var items = await _toDoService.GetItemsAsync("active", _sessionService.CurrentUser.id);
+            
+            // Unsubscribe from old items
+            foreach (var item in ToDoItems)
+            {
+                item.PropertyChanged -= Item_PropertyChanged;
+            }
 
-        ToDoItems.Clear();
-        foreach (var item in TaskDataStore.AllItems)
-        {
-            if (item.status == "Pending")
+            ToDoItems.Clear();
+            foreach (var item in items)
             {
                 item.PropertyChanged += Item_PropertyChanged;
                 ToDoItems.Add(item);
             }
+
+            if (ToDoItems.Count == 0)
+            {
+                // Optional: Show empty state message
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Failed to load tasks: {ex.Message}", "OK");
         }
     }
 
@@ -69,7 +73,7 @@ public partial class ToDoPage : ContentPage
         if (e.PropertyName == nameof(ToDoClass.status) || e.PropertyName == nameof(ToDoClass.IsCompleted))
         {
             // If an item is now completed, it should move to the completed list
-            RefreshList();
+            _ = LoadTasksAsync();
         }
     }
 
@@ -87,7 +91,8 @@ public partial class ToDoPage : ContentPage
             try
             {
                 var newItem = await _toDoService.AddItemAsync(title, description, _sessionService.CurrentUser.id);
-                TaskDataStore.AddTask(newItem);
+                newItem.PropertyChanged += Item_PropertyChanged;
+                ToDoItems.Add(newItem);
             }
             catch (Exception ex)
             {
@@ -116,7 +121,7 @@ public partial class ToDoPage : ContentPage
             };
             editPage.OnDeleteAction = () =>
             {
-                TaskDataStore.RemoveTask(item);
+                ToDoItems.Remove(item);
             };
 
             await Shell.Current.Navigation.PushModalAsync(editPage);

@@ -8,25 +8,26 @@ public partial class CompletedPage : ContentPage
 {
     public ObservableCollection<ToDoClass> CompletedItems { get; set; } = new();
 
-    public CompletedPage()
+    private readonly IToDoService _toDoService;
+    private readonly ISessionService _sessionService;
+
+    public CompletedPage(IToDoService toDoService, ISessionService sessionService)
     {
         InitializeComponent();
+        _toDoService = toDoService;
+        _sessionService = sessionService;
         BindingContext = CompletedItems;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        RefreshList();
-        
-        // Subscribe to changes in the master list
-        TaskDataStore.AllItems.CollectionChanged += AllItems_CollectionChanged;
+        await LoadCompletedTasksAsync();
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        TaskDataStore.AllItems.CollectionChanged -= AllItems_CollectionChanged;
         
         // Unsubscribe from existing items to prevent leaks
         foreach (var item in CompletedItems)
@@ -35,27 +36,35 @@ public partial class CompletedPage : ContentPage
         }
     }
 
-    private void AllItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private async Task LoadCompletedTasksAsync()
     {
-        RefreshList();
-    }
+        if (_sessionService.CurrentUser == null) return;
 
-    private void RefreshList()
-    {
-        // Unsubscribe from existing items
-        foreach (var item in CompletedItems)
+        try
         {
-            item.PropertyChanged -= Item_PropertyChanged;
-        }
+            var items = await _toDoService.GetItemsAsync("inactive", _sessionService.CurrentUser.id);
 
-        CompletedItems.Clear();
-        foreach (var item in TaskDataStore.AllItems)
-        {
-            if (item.status == "Completed")
+            // Unsubscribe from old items
+            foreach (var item in CompletedItems)
+            {
+                item.PropertyChanged -= Item_PropertyChanged;
+            }
+
+            CompletedItems.Clear();
+            foreach (var item in items)
             {
                 item.PropertyChanged += Item_PropertyChanged;
                 CompletedItems.Add(item);
             }
+
+            if (CompletedItems.Count == 0)
+            {
+                // Optional: Show empty state message
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Failed to load completed tasks: {ex.Message}", "OK");
         }
     }
 
@@ -64,7 +73,7 @@ public partial class CompletedPage : ContentPage
         if (e.PropertyName == nameof(ToDoClass.status) || e.PropertyName == nameof(ToDoClass.IsCompleted))
         {
             // If an item is now pending (unchecked), it should move to the pending list
-            RefreshList();
+            _ = LoadCompletedTasksAsync();
         }
     }
 
@@ -86,7 +95,7 @@ public partial class CompletedPage : ContentPage
             };
             editPage.OnDeleteAction = () =>
             {
-                TaskDataStore.RemoveTask(item);
+                CompletedItems.Remove(item);
             };
 
             await Shell.Current.Navigation.PushModalAsync(editPage);

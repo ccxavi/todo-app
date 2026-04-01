@@ -6,15 +6,15 @@ namespace ToDoApplication;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 fonts.AddFont("Inter-Regular.ttf", "InterRegular");
                 fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
             });
@@ -34,11 +34,17 @@ public static class MauiProgram
         });
 
         // Register Pages
+        builder.Services.AddTransient<SignInPage>();
+        builder.Services.AddTransient<SignUpPage>();
+        builder.Services.AddTransient<ToDoPage>();
+        builder.Services.AddTransient<CompletedPage>();
+        builder.Services.AddTransient<ProfilePage>();
+        builder.Services.AddTransient<AddToDoPage>();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+        return builder.Build();
+    }
 }
