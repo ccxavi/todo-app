@@ -10,6 +10,8 @@ public partial class CompletedPage : ContentPage
 
     private readonly IToDoService _toDoService;
     private readonly ISessionService _sessionService;
+    
+    private bool _isLoading;
 
     public CompletedPage(IToDoService toDoService, ISessionService sessionService)
     {
@@ -38,10 +40,11 @@ public partial class CompletedPage : ContentPage
 
     private async Task LoadCompletedTasksAsync()
     {
-        if (_sessionService.CurrentUser == null) return;
+        if (_sessionService.CurrentUser == null || _isLoading) return;
 
         try
         {
+            _isLoading = true;
             var items = await _toDoService.GetItemsAsync("inactive", _sessionService.CurrentUser.id);
 
             // Unsubscribe from old items
@@ -61,6 +64,10 @@ public partial class CompletedPage : ContentPage
         {
             await DisplayAlert("Error", $"Failed to load completed tasks: {ex.Message}", "OK");
         }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
     private async void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -74,7 +81,6 @@ public partial class CompletedPage : ContentPage
                     string apiStatus = item.IsCompleted ? "inactive" : "active";
                     await _toDoService.UpdateStatusAsync(item.item_id, apiStatus);
                     
-                    // On success, remove from this view
                     item.PropertyChanged -= Item_PropertyChanged;
                     CompletedItems.Remove(item);
                 }

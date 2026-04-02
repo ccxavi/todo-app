@@ -4,6 +4,8 @@ public partial class AddToDoPage : ContentPage
 {
     public Func<string, string, Task>? OnSaveAction { get; set; }
     public Func<Task>? OnDeleteAction { get; set; }
+    
+    private bool _isProcessing;
 
     // Constructor for Add mode
     public AddToDoPage()
@@ -24,11 +26,26 @@ public partial class AddToDoPage : ContentPage
 
     private async void OnBackClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.Navigation.PopModalAsync();
+        if (_isProcessing) return;
+        await Navigation.PopModalAsync();
+    }
+
+    private void SetLoading(bool isLoading)
+    {
+        _isProcessing = isLoading;
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+        
+        TitleEntry.IsEnabled = !isLoading;
+        DetailsEditor.IsEnabled = !isLoading;
+        SaveButton.IsEnabled = !isLoading;
+        DeleteButton.IsEnabled = !isLoading;
     }
 
     private async void OnAddClicked(object? sender, EventArgs e)
     {
+        if (_isProcessing) return;
+
         string title = TitleEntry.Text ?? string.Empty;
         string details = DetailsEditor.Text ?? string.Empty;
 
@@ -38,19 +55,56 @@ public partial class AddToDoPage : ContentPage
             return;
         }
 
-        if (OnSaveAction != null)
+        if (string.IsNullOrWhiteSpace(details))
         {
-            await OnSaveAction.Invoke(title, details);
+            await DisplayAlert("Error", "Please enter some details.", "OK");
+            return;
         }
 
-        await Shell.Current.Navigation.PopModalAsync();
+        bool success = false;
+        try
+        {
+            SetLoading(true);
+            if (OnSaveAction != null)
+            {
+                await OnSaveAction.Invoke(title, details);
+            }
+            success = true;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+        }
+        finally
+        {
+            SetLoading(false);
+        }
+
+        if (success)
+        {
+            await Navigation.PopModalAsync();
+        }
     }
 
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
-        if (OnDeleteAction != null)
+        if (_isProcessing) return;
+
+        try
         {
-            await OnDeleteAction.Invoke();
+            SetLoading(true);
+            if (OnDeleteAction != null)
+            {
+                await OnDeleteAction.Invoke();
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+        }
+        finally
+        {
+            SetLoading(false);
         }
     }
 }
