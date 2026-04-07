@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace ToDoApplication.Models;
 
@@ -8,8 +9,9 @@ public class ToDoClass : INotifyPropertyChanged
     private int _item_id;
     private string? _item_name;
     private string? _item_description;
-    private string _status = "Pending";
+    private string _status = "active";
     private int _user_id;
+    private string _timemodified = string.Empty;
 
     public int item_id
     {
@@ -58,10 +60,10 @@ public class ToDoClass : INotifyPropertyChanged
 
     public bool IsCompleted
     {
-        get => _status == "Completed";
+        get => _status == "inactive";
         set 
         { 
-            string newStatus = value ? "Completed" : "Pending";
+            string newStatus = value ? "inactive" : "active";
             if (_status == newStatus) return;
             _status = newStatus; 
             OnPropertyChanged(); 
@@ -80,10 +82,53 @@ public class ToDoClass : INotifyPropertyChanged
         }
     }
 
+    public string timemodified
+    {
+        get => _timemodified;
+        set
+        {
+            if (_timemodified == value) return;
+            _timemodified = value;
+            OnPropertyChanged();
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+}
+
+public class AddItemResponseClass
+{
+    public int status { get; set; }
+    public ToDoClass? data { get; set; }
+    public string message { get; set; } = "";
+}
+
+public class GetItemsResponseClass
+{
+    public int status { get; set; }
+    public Dictionary<string, ToDoClass>? data { get; set; }
+    public object? count { get; set; }
+}
+
+public class UpdateItemResponseClass
+{
+    public int status { get; set; }
+    public string message { get; set; } = "";
+}
+
+public class StatusItemResponseClass
+{
+    public int status { get; set; }
+    public string message { get; set; } = "";
+}
+
+public class DeleteItemResponseClass
+{
+    public int status { get; set; }
+    public string message { get; set; } = "";
 }

@@ -8,25 +8,26 @@ public partial class ToDoPage : ContentPage
 {
     public ObservableCollection<ToDoClass> ToDoItems { get; set; } = new();
 
-    public ToDoPage()
+    private readonly IToDoService _toDoService;
+    private readonly ISessionService _sessionService;
+
+    public ToDoPage(IToDoService toDoService, ISessionService sessionService)
     {
         InitializeComponent();
+        _toDoService = toDoService;
+        _sessionService = sessionService;
         BindingContext = ToDoItems;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        RefreshList();
-        
-        // Subscribe to changes in the master list
-        TaskDataStore.AllItems.CollectionChanged += AllItems_CollectionChanged;
+        await LoadTasksAsync();
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        TaskDataStore.AllItems.CollectionChanged -= AllItems_CollectionChanged;
         
         // Unsubscribe from existing items to prevent leaks
         foreach (var item in ToDoItems)
@@ -35,50 +36,82 @@ public partial class ToDoPage : ContentPage
         }
     }
 
-    private void AllItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private async Task LoadTasksAsync()
     {
-        RefreshList();
-    }
+        if (_sessionService.CurrentUser == null) return;
 
-    private void RefreshList()
-    {
-        // Unsubscribe from existing items
-        foreach (var item in ToDoItems)
+        try
         {
-            item.PropertyChanged -= Item_PropertyChanged;
-        }
+            var items = await _toDoService.GetItemsAsync("active", _sessionService.CurrentUser.id);
+            
+            // Unsubscribe from old items
+            foreach (var item in ToDoItems)
+            {
+                item.PropertyChanged -= Item_PropertyChanged;
+            }
 
-        ToDoItems.Clear();
-        foreach (var item in TaskDataStore.AllItems)
-        {
-            if (item.status == "Pending")
+            ToDoItems.Clear();
+            foreach (var item in items)
             {
                 item.PropertyChanged += Item_PropertyChanged;
                 ToDoItems.Add(item);
             }
         }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Failed to load tasks: {ex.Message}", "OK");
+        }
     }
 
-    private void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private async void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(ToDoClass.status) || e.PropertyName == nameof(ToDoClass.IsCompleted))
+        if (e.PropertyName == nameof(ToDoClass.IsCompleted))
         {
-            // If an item is now completed, it should move to the completed list
-            RefreshList();
+            if (sender is ToDoClass item)
+            {
+                try
+                {
+                    string apiStatus = item.IsCompleted ? "inactive" : "active";
+                    await _toDoService.UpdateStatusAsync(item.item_id, apiStatus);
+                    
+                    // On success, remove from this view
+                    item.PropertyChanged -= Item_PropertyChanged;
+                    ToDoItems.Remove(item);
+                }
+                catch (Exception ex)
+                {
+                    // Revert the local change and error message
+                    item.PropertyChanged -= Item_PropertyChanged;
+                    item.IsCompleted = !item.IsCompleted;
+                    item.PropertyChanged += Item_PropertyChanged;
+
+                    await DisplayAlert("Error", $"Failed to update status: {ex.Message}", "OK");
+                }
+            }
         }
     }
 
     private async void OnAddClicked(object? sender, EventArgs e)
     {
         var addPage = new AddToDoPage();
-        addPage.OnSaveAction = (title, description) =>
+        addPage.OnSaveAction = async (title, description) =>
         {
-            TaskDataStore.AddTask(new ToDoClass
+            if (_sessionService.CurrentUser == null)
             {
-                item_name = title,
-                item_description = description ?? string.Empty,
-                status = "Pending"
-            });
+                await DisplayAlert("Error", "User not logged in.", "OK");
+                return;
+            }
+
+            try
+            {
+                var newItem = await _toDoService.AddItemAsync(title, description, _sessionService.CurrentUser.id);
+                newItem.PropertyChanged += Item_PropertyChanged;
+                ToDoItems.Add(newItem);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to add task: {ex.Message}", "OK");
+            }
         };
 
         await Shell.Current.Navigation.PushModalAsync(addPage);
@@ -95,18 +128,38 @@ public partial class ToDoPage : ContentPage
             }
 
             var editPage = new AddToDoPage(item.item_name, item.item_description);
-            editPage.OnSaveAction = (newTitle, newDescription) =>
+            editPage.OnSaveAction = async (newTitle, newDescription) =>
             {
-                item.item_name = newTitle;
-                item.item_description = newDescription ?? string.Empty;
+                try
+                {
+                    await _toDoService.UpdateItemAsync(item.item_id, newTitle, newDescription ?? string.Empty);
+                    item.item_name = newTitle;
+                    item.item_description = newDescription ?? string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to update task: {ex.Message}", "OK");
+                }
             };
-            editPage.OnDeleteAction = () =>
+            editPage.OnDeleteAction = async () =>
             {
-                TaskDataStore.RemoveTask(item);
+                bool confirm = await DisplayAlert("Delete Task", "Are you sure you want to delete this task?", "Yes", "No");
+                if (confirm)
+                {
+                    try
+                    {
+                        await _toDoService.DeleteItemAsync(item.item_id);
+                        ToDoItems.Remove(item);
+                        await Shell.Current.Navigation.PopModalAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"Failed to delete task: {ex.Message}", "OK");
+                    }
+                }
             };
 
             await Shell.Current.Navigation.PushModalAsync(editPage);
         }
     }
-
 }

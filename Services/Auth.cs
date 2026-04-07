@@ -13,10 +13,12 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
+    private readonly ISessionService _sessionService;
 
-    public AuthService(HttpClient httpClient)
+    public AuthService(HttpClient httpClient, ISessionService sessionService)
     {
         _httpClient = httpClient;
+        _sessionService = sessionService;
     }
 
     public async Task<AccountClass?> SignInAsync(SignInRequestClass request)
@@ -38,6 +40,8 @@ public class AuthService : IAuthService
 
         if (result.status != 200)
             throw new Exception(result.message);
+
+        _sessionService.CurrentUser = result.data;
 
         return result.data;
     }
@@ -62,6 +66,7 @@ public class AuthService : IAuthService
 
     public Task SignOutAsync()
     {
+        _sessionService.CurrentUser = null;
         return Task.CompletedTask;
     }
 }
