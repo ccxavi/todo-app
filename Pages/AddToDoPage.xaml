@@ -5,6 +5,58 @@
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray700}, Dark={StaticResource Gray300}}" />
+                <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid Padding="0,16,0,0" RowDefinitions="Auto,*">
         
         <!-- Header -->
@@ -100,26 +152,20 @@
                     </VerticalStackLayout>
                     
                     <VerticalStackLayout Spacing="16" Margin="0,32,0,0">
+                        <ActivityIndicator x:Name="LoadingIndicator"
+                                           IsVisible="False"
+                                           IsRunning="False"
+                                           HorizontalOptions="Center"
+                                           Margin="0,0,0,16"/>
+
                         <Button x:Name="SaveButton"
                                 Text="Save"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" 
-                                TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}"
-                                CornerRadius="8"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HeightRequest="50"
+                                Style="{StaticResource ActionButtonStyle}"
                                 Clicked="OnAddClicked" />
 
                         <Button x:Name="DeleteButton"
                                 Text="Delete"
-                                BackgroundColor="Transparent" 
-                                TextColor="{AppThemeBinding Light={StaticResource Gray700}, Dark={StaticResource Gray300}}"
-                                BorderColor="{AppThemeBinding Light={StaticResource Border}, Dark={StaticResource BorderDark}}"
-                                BorderWidth="1"
-                                CornerRadius="8"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HeightRequest="50"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 IsVisible="False"
                                 Clicked="OnDeleteClicked" />
                     </VerticalStackLayout>
